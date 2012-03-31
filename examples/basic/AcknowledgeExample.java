@@ -12,7 +12,8 @@ import io.socket.IOCallback;
 import io.socket.SocketIO;
 import io.socket.SocketIOException;
 
-import org.json.JSONObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 public class AcknowledgeExample implements IOCallback {
 	private SocketIO socket;
@@ -35,7 +36,7 @@ public class AcknowledgeExample implements IOCallback {
 		// Sends a string to the server.
 		socket.send(new IOAcknowledge() {
 			@Override
-			public void ack(Object... args) {
+			public void ack(JsonElement... args) {
 				System.out.println("Server acknowledges this package.");
 				for(Object o : args)
 					System.out.println(o.toString());
@@ -44,13 +45,13 @@ public class AcknowledgeExample implements IOCallback {
 	}
 
 	@Override
-	public void onMessage(JSONObject json, IOAcknowledge ack) {
+	public void onMessage(JsonElement json, IOAcknowledge ack) {
 	}
 
 	@Override
 	public void onMessage(String data, IOAcknowledge ack) {
 		// acknowledges a package
-		ack.ack("argument1", 23.42, "argument3");
+		ack.ack(new JsonPrimitive("argument1"), new JsonPrimitive(23.42), new JsonPrimitive("argument3") );
 	}
 
 	@Override
@@ -66,6 +67,6 @@ public class AcknowledgeExample implements IOCallback {
 	}
 
 	@Override
-	public void on(String event, IOAcknowledge ack, Object... args) {
+	public void on(String event, IOAcknowledge ack, JsonElement... args) {
 	}
 }

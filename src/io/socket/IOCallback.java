@@ -8,7 +8,8 @@
  */
 package io.socket;
 
-import org.json.JSONObject;
+import com.google.gson.JsonElement;
+
 
 /**
  * The Interface IOCallback. A callback interface to SocketIO
@@ -39,7 +40,7 @@ public interface IOCallback {
 	 * @param json JSON object sent by server.
 	 * @param ack an {@link IOAcknowledge} instance, may be <code>null</code> if there's none
 	 */
-	void onMessage(JSONObject json, IOAcknowledge ack);
+	void onMessage(JsonElement json, IOAcknowledge ack);
 	
 	/**
 	 * On [Event]. Called when server emits an event.
@@ -48,7 +49,7 @@ public interface IOCallback {
 	 * @param ack an {@link IOAcknowledge} instance, may be <code>null</code> if there's none
 	 * @param args Arguments of the event
 	 */
-	void on(String event, IOAcknowledge ack, Object... args);
+	void on(String event, IOAcknowledge ack, JsonElement... args);
 	
 	/**
 	 * On error. Called when socket is in an undefined state. No reconnect attempts will be made.

@@ -1,14 +1,13 @@
 package chat;
 
-import java.util.Arrays;
-
 import io.socket.IOAcknowledge;
 import io.socket.IOCallback;
 import io.socket.SocketIOException;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class ChatCallback implements IOCallback, IOAcknowledge {
     private ChatCallbackAdapter callback;
@@ -18,17 +17,18 @@ public class ChatCallback implements IOCallback, IOAcknowledge {
     }
 
 	@Override
-	public void ack(Object... data) {
+	public void ack(JsonElement... data) {
         try {
-			callback.callback(new JSONArray(Arrays.asList(data)));
-		} catch (JSONException e) {
+          JsonArray jarray = new JsonParser().parse(data.toString()).getAsJsonArray();
+			callback.callback( jarray );
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
     }
 
     @Override
-    public void on(String event, IOAcknowledge ack, Object... data) {
-        callback.on(event, (JSONObject) data[0]);
+    public void on(String event, IOAcknowledge ack, JsonElement... data) {
+        callback.on(event,  data[0]);
     }
 
     @Override
@@ -37,8 +37,8 @@ public class ChatCallback implements IOCallback, IOAcknowledge {
     }
 
     @Override
-    public void onMessage(JSONObject json, IOAcknowledge ack) {
-        callback.onMessage(json);
+    public void onMessage(JsonElement json, IOAcknowledge ack) {
+        callback.onMessage(json.getAsJsonObject());
     }
 
     @Override

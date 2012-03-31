@@ -4,8 +4,9 @@ import io.socket.SocketIO;
 
 import java.net.MalformedURLException;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
 
 public class Chat extends Thread {
     private SocketIO socket;
@@ -26,18 +27,18 @@ public class Chat extends Thread {
     
     public void sendMessage(String message) {
         try {
-            JSONObject json = new JSONObject();
-            json.putOpt("message", message);
+            JsonObject json = new JsonObject();
+            json.add("message", new JsonPrimitive( message ) );
             socket.emit("user message", json);
-        } catch (JSONException ex) {
+        } catch (JsonSyntaxException ex) {
             ex.printStackTrace();
         }
     }
     
     public void join(String nickname) {
         try {
-            JSONObject json = new JSONObject();
-            json.putOpt("nickname", nickname);
+            JsonObject json = new JsonObject();
+            json.add("message", new JsonPrimitive( nickname ) );
             socket.emit("nickname", callback, json);
         } catch (Exception ex) {
             ex.printStackTrace();

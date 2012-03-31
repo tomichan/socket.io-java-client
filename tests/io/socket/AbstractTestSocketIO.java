@@ -8,8 +8,9 @@
  */
 package io.socket;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import io.socket.testutils.MutateProxy;
 
 import java.io.BufferedReader;
@@ -19,12 +20,15 @@ import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -251,7 +255,7 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 		assertEquals("Test String", "on", takeEvent());
 		assertEquals(str, takeArg());
 		
-		JSONObject obj = new JSONObject("{'foo':'bar'}");
+		JsonObject obj = new JsonParser().parse("{'foo':'bar'}").getAsJsonObject();
 		socket.emit("echo", obj);
 		assertEquals("Test JSON", "on", takeEvent());
 		assertEquals(obj.toString(), takeArg().toString());
@@ -350,7 +354,7 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 		doConnect();
 		socket.emit("echoAck", new IOAcknowledge() {
 			@Override
-			public void ack(Object... args) {
+			public void ack(JsonElement... args) {
 				events.add("ack");
 				AbstractTestSocketIO.this.args.addAll(Arrays.asList(args));
 			}
@@ -456,7 +460,7 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 	 * io.socket.IOAcknowledge)
 	 */
 	@Override
-	public void onMessage(JSONObject json, IOAcknowledge ack) {
+	public void onMessage(JsonElement json, IOAcknowledge ack) {
 		events.add("onMessage_json");
 		this.args.add(json);
 	}
@@ -468,7 +472,7 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 	 * java.lang.Object[])
 	 */
 	@Override
-	public void on(String event, IOAcknowledge ack, Object... args) {
+	public void on(String event, IOAcknowledge ack, JsonElement... args) {
 		events.add("on");
 		if(event.equals(REQUEST_ACKNOWLEDGE)) {
 			ack.ack(args);

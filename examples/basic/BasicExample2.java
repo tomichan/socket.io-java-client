@@ -1,6 +1,6 @@
 package basic;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonSyntaxException;
 
 import io.socket.IOAcknowledge;
 import io.socket.IOCallback;
@@ -20,10 +20,10 @@ public class BasicExample2 {
 		SocketIO socket = new SocketIO("http://127.0.0.1:3001/");
 		socket.connect(new IOCallback() {
 			@Override
-			public void onMessage(JSONObject json, IOAcknowledge ack) {
+			public void onMessage(JsonElement json, IOAcknowledge ack) {
 				try {
-					System.out.println("Server said:" + json.toString(2));
-				} catch (JSONException e) {
+					System.out.println("Server said:" + json.toString());
+				} catch (JsonSyntaxException e) {
 					e.printStackTrace();
 				}
 			}
@@ -50,7 +50,7 @@ public class BasicExample2 {
 			}
 
 			@Override
-			public void on(String event, IOAcknowledge ack, Object... args) {
+			public void on(String event, IOAcknowledge ack, JsonElement... args) {
 				System.out.println("Server triggered event '" + event + "'");
 			}
 		});

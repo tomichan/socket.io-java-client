@@ -12,7 +12,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
+
 
 /**
  * The Class SocketIO.
@@ -265,7 +266,7 @@ public class SocketIO {
 	 * @param json
 	 *            the JSON object
 	 */
-	public void send(final JSONObject json) {
+	public void send(final JsonObject json) {
 		this.connection.send(this, null, json);
 	}
 
@@ -277,7 +278,7 @@ public class SocketIO {
 	 * @param json
 	 *            the JSON object
 	 */
-	public void send(IOAcknowledge ack, final JSONObject json) {
+	public void send(IOAcknowledge ack, final JsonObject json) {
 		this.connection.send(this, ack, json);
 	}
 

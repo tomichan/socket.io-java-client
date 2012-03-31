@@ -12,8 +12,10 @@ import io.socket.IOCallback;
 import io.socket.SocketIO;
 import io.socket.SocketIOException;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
 
 public class BasicExample implements IOCallback {
 	private SocketIO socket;
@@ -37,18 +39,21 @@ public class BasicExample implements IOCallback {
 		socket.send("Hello Server");
 
 		// Sends a JSON object to the server.
-		socket.send(new JSONObject().put("key", "value").put("key2",
-				"another value"));
+		JsonObject json = new JsonObject();
+		
+		json.add("key", new JsonPrimitive("value"));
+		json.add("key2", new JsonPrimitive("another value"));
+		socket.send(json);
 
 		// Emits an event to the server.
 		socket.emit("event", "argument1", "argument2", 13.37);
 	}
 
 	@Override
-	public void onMessage(JSONObject json, IOAcknowledge ack) {
+	public void onMessage(JsonElement json, IOAcknowledge ack) {
 		try {
-			System.out.println("Server said:" + json.toString(2));
-		} catch (JSONException e) {
+			System.out.println("Server said:" + json.toString() );
+		} catch (JsonSyntaxException e) {
 			e.printStackTrace();
 		}
 	}
@@ -75,7 +80,7 @@ public class BasicExample implements IOCallback {
 	}
 
 	@Override
-	public void on(String event, IOAcknowledge ack, Object... args) {
+	public void on(String event, IOAcknowledge ack, JsonElement... args) {
 		System.out.println("Server triggered event '" + event + "'");
 	}
 }

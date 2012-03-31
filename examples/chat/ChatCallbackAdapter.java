@@ -1,14 +1,14 @@
 package chat;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public interface ChatCallbackAdapter {
-    public void callback(JSONArray data) throws JSONException;
-    public void on(String event, JSONObject data);
+    public void callback(JsonArray data) throws Throwable;
+    public void on(String event, JsonElement data);
     public void onMessage(String message);
-    public void onMessage(JSONObject json);
+    public void onMessage(JsonElement json);
     public void onConnect();
     public void onDisconnect();
     public void onConnectFailure();

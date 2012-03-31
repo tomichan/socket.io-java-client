@@ -1,9 +1,11 @@
 package chat;
 
 import javax.swing.JOptionPane;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
 public class ChatFrame extends javax.swing.JFrame implements ChatCallbackAdapter {
     /**
@@ -143,30 +145,30 @@ public class ChatFrame extends javax.swing.JFrame implements ChatCallbackAdapter
     }
     
     @Override
-    public void callback(JSONArray data) throws JSONException {}
+    public void callback(JsonArray data) throws Throwable {}
 
     @Override
-    public void on(String event, JSONObject obj) {
+    public void on(String event, JsonElement obj) {
         try {
             if (event.equals("user message")) {
-                MessagesTextArea.append(obj.getString("user") + ": " + obj.getString("message") + "\n");
+                MessagesTextArea.append(obj.getAsJsonObject().get("user").getAsString() + ": " + obj.getAsJsonObject().get("message").getAsString() + "\n");
             }
 
             else if (event.equals("announcement")) {
-                MessagesTextArea.append(obj.getString("user") + " " + obj.getString("action") + "\n");
+                MessagesTextArea.append(obj.getAsJsonObject().get("user").getAsString() + " " + obj.getAsJsonObject().get("action").getAsString() + "\n");
             }
 
             else if (event.equals("nicknames")) {
-                JSONArray names = obj.names();
+                JsonArray names = obj.getAsJsonArray();
                 String str = "";
-                for (int i=0; i < names.length(); i++) {
+                for (int i=0; i < names.size(); i++) {
                     if (i != 0)
                         str += ", ";
-                    str += names.getString(i);
+                    str += names.get(i).getAsString();
                 }
                 OnlineUsers.setText(str);
             }
-        } catch (JSONException ex) {
+        } catch (JsonSyntaxException ex) {
             ex.printStackTrace();
         }
     }
@@ -175,7 +177,7 @@ public class ChatFrame extends javax.swing.JFrame implements ChatCallbackAdapter
     public void onMessage(String message) {}
 
     @Override
-    public void onMessage(JSONObject json) {}
+    public void onMessage(JsonElement json) {}
 
     @Override
     public void onConnect() {

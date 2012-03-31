@@ -26,9 +26,12 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * The Class EngineIO.
@@ -333,15 +336,14 @@ class EngineIO implements IOCallback {
 		final String endPoint = message.getEndpoint();
 		return new IOAcknowledge() {
 			@Override
-			public void ack(Object... args) {
-				JSONArray array = new JSONArray();
-				for (Object o : args) {
+			public void ack(JsonElement... args) {
+				JsonArray array = new JsonArray();
+				for (JsonElement o : args) {
 					try {
-						array.put(o == null ? JSONObject.NULL : o);
+					  array.add( o );
+//						array.put(o == null ? null : o);
 					} catch (Exception e) {
-						error(new SocketIOException(
-								"You can only put values in IOAcknowledge.ack() which can be handled by JSONArray.put()",
-								e));
+						error(new SocketIOException("You can only put values in IOAcknowledge.ack() which can be handled by JSONArray.put()", e));
 					}
 				}
 				IOMessage ackMsg = new IOMessage(IOMessage.TYPE_ACK, endPoint,
@@ -634,37 +636,41 @@ class EngineIO implements IOCallback {
 			break;
 		case IOMessage.TYPE_JSON_MESSAGE:
 			try {
-				JSONObject obj = null;
+			  JsonElement obj = null;
 				String data = message.getData();
-				if (data.trim().equals("null") == false)
-					obj = new JSONObject(data);
+				if (data.trim().equals("null") == false){
+//					obj = new JSONObject(data);
+				  obj = new JsonParser().parse( data );
+				}
 				try {
-					findCallback(message).onMessage(obj,
-							remoteAcknowledge(message));
+					findCallback(message).onMessage(obj,remoteAcknowledge(message));
+					
 				} catch (Exception e) {
 					error(new SocketIOException(
 							"Exception was thrown in onMessage(JSONObject).\n"
 									+ "Message was: " + message.toString(), e));
 				}
-			} catch (JSONException e) {
+			} catch (JsonSyntaxException e) {
 				logger.warning("Malformated JSON received");
 			}
 			break;
 		case IOMessage.TYPE_EVENT:
 			try {
-				JSONObject event = new JSONObject(message.getData());
-				Object[] argsArray;
+				JsonObject event = new JsonParser().parse( message.getData() ).getAsJsonObject();//new JSONObject(message.getData());
+				JsonElement[] argsArray;
 				if (event.has("args")) {
-					JSONArray args = event.getJSONArray("args");
-					argsArray = new Object[args.length()];
-					for (int i = 0; i < args.length(); i++) {
-						if (args.isNull(i) == false)
+//					JSONArray args = event.getJSONArray("args");
+				  JsonArray args = event.get("args").getAsJsonArray();
+					argsArray = new JsonElement[args.size()];
+					for (int i = 0; i < args.size(); i++) {
+					  if ( args.get(i) != null && !args.get(i).isJsonNull())
+//						if (args.isNull(i) == false)
 							argsArray[i] = args.get(i);
 					}
 				}
 				else
-					argsArray = new Object[0];
-				String eventName = event.getString("name");
+					argsArray = new JsonElement[0];
+				String eventName = event.get("name").getAsString();//.getString("name");
 				try {
 					findCallback(message).on(eventName,
 							remoteAcknowledge(message), argsArray);
@@ -673,7 +679,7 @@ class EngineIO implements IOCallback {
 							"Exception was thrown in on(String, JSONObject[]).\n"
 									+ "Message was: " + message.toString(), e));
 				}
-			} catch (JSONException e) {
+			} catch (JsonSyntaxException e) {
 				logger.warning("Malformated JSON received");
 			}
 			break;
@@ -687,8 +693,8 @@ class EngineIO implements IOCallback {
 					if (ack == null)
 						logger.warning("Received unknown ack packet");
 					else {
-						JSONArray array = new JSONArray(data[1]);
-						Object[] args = new Object[array.length()];
+						JsonArray array = new JsonParser().parse( data[1] ).getAsJsonArray();//new JSONArray(data[1]);
+						JsonElement[] args = new JsonElement[array.size()];
 						for (int i = 0; i < args.length; i++) {
 							args[i] = array.get(i);
 						}
@@ -696,7 +702,7 @@ class EngineIO implements IOCallback {
 					}
 				} catch (NumberFormatException e) {
 					logger.warning("Received malformated Acknowledge! This is potentially filling up the acknowledges!");
-				} catch (JSONException e) {
+				} catch (JsonSyntaxException e) {
 					logger.warning("Received malformated Acknowledge data!");
 				}
 			} else if (data.length == 1) {
@@ -777,7 +783,7 @@ class EngineIO implements IOCallback {
 	 * @param json
 	 *            the json
 	 */
-	public void send(SocketIO socket, IOAcknowledge ack, JSONObject json) {
+	public void send(SocketIO socket, IOAcknowledge ack, JsonElement json) {
 		IOMessage message = new IOMessage(IOMessage.TYPE_JSON_MESSAGE,
 				socket.getNamespace(), json.toString());
 		synthesizeAck(message, ack);
@@ -799,15 +805,18 @@ class EngineIO implements IOCallback {
 	public void emit(SocketIO socket, String event, IOAcknowledge ack,
 			Object... args) {
 		try {
-			JSONObject json = new JSONObject().put("name", event).put("args",
-					new JSONArray(Arrays.asList(args)));
-			IOMessage message = new IOMessage(IOMessage.TYPE_EVENT,
+//			JSONObject json = new JSONObject().put("name", event).put("args", new JSONArray(Arrays.asList(args)));
+		  JsonArray jarray = new JsonParser().parse(args.toString()).getAsJsonArray();
+		  JsonObject json = new JsonObject();
+		  json.add( "name", new JsonPrimitive(event) );
+		  json.add( "args", jarray);
+			
+		  IOMessage message = new IOMessage(IOMessage.TYPE_EVENT,
 					socket.getNamespace(), json.toString());
 			synthesizeAck(message, ack);
 			sendPlain(message.toString());
-		} catch (JSONException e) {
-			error(new SocketIOException(
-					"Error while emitting an event. Make sure you only try to send arguments, which can be serialized into JSON."));
+		} catch (JsonSyntaxException e) {
+			error(new SocketIOException("Error while emitting an event. Make sure you only try to send arguments, which can be serialized into JSON."));
 		}
 
 	}
@@ -870,13 +879,13 @@ class EngineIO implements IOCallback {
 	}
 
 	@Override
-	public void onMessage(JSONObject json, IOAcknowledge ack) {
+	public void onMessage(JsonElement json, IOAcknowledge ack) {
 		for(SocketIO socket : sockets.values())
 			socket.getCallback().onMessage(json, ack);
 	}
 
 	@Override
-	public void on(String event, IOAcknowledge ack, Object... args) {
+	public void on(String event, IOAcknowledge ack, JsonElement... args) {
 		for(SocketIO socket : sockets.values())
 			socket.getCallback().on(event, ack, args);
 	}
