@@ -49,8 +49,8 @@
   
   
   <scm>
-    <connection>scm:git:git@github.com/fatshotty/socket.io-java-client.git</connection>
-    <developerConnection>scm:git:git@github.com/fatshotty/socket.io-java-client.git</developerConnection>
+    <connection>scm:git:git://github.com/fatshotty/socket.io-java-client.git</connection>
+    <developerConnection>scm:git:git://github.com/fatshotty/socket.io-java-client.git</developerConnection>
     <url>http://github.com/fatshotty/socket.io-java-client/tree/master</url>
   </scm>
   
