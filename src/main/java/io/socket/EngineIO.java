@@ -862,7 +862,7 @@ class EngineIO implements IOCallback {
 	public void onDisconnect() {
 		SocketIO socket = sockets.get("");
 		if(socket != null)
-			socket.getCallback().onConnect();
+			socket.getCallback().onDisconnect();
 	}
 
 	@Override
