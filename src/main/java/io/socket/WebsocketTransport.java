@@ -127,8 +127,9 @@ class WebsocketTransport implements IOTransport, WebSocketEventHandler {
 	public void connect() {
 		try {
 			websocket.connect();
-		} catch (WebSocketException e) {
-			connection.transportError(e);
+		} catch ( Exception t ){
+		  System.out.println( t.getMessage() );
+		  connection.transportError(t);
 		}
 	}
 
