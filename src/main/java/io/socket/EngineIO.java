@@ -857,20 +857,6 @@ class EngineIO implements IOCallback {
   }
 
   @Override
-  public void onDisconnect() {
-    SocketIO socket = sockets.get("");
-    if(socket != null)
-      socket.getCallback().onDisconnect();
-  }
-
-  @Override
-  public void onConnect() {
-    SocketIO socket = sockets.get("");
-    if(socket != null)
-      socket.getCallback().onConnect();
-  }
-
-  @Override
   public void onMessage(String data, IOAcknowledge ack) {
     for(SocketIO socket : sockets.values())
       socket.getCallback().onMessage(data, ack);
@@ -892,5 +878,19 @@ class EngineIO implements IOCallback {
   public void onError(SocketIOException socketIOException) {
     for(SocketIO socket : sockets.values())
       socket.getCallback().onError(socketIOException);
+  }
+
+  @Override
+  public void onDisconnect() {
+    SocketIO socket = sockets.get("");
+    if(socket != null)
+      socket.getCallback().onDisconnect();
+  }
+
+  @Override
+  public void onConnect() {
+    SocketIO socket = sockets.get("");
+    if(socket != null)
+      socket.getCallback().onConnect();
   }
 }
