@@ -106,7 +106,8 @@ class EngineIO implements IOCallback {
   private SocketIO firstSocket = null;
 
   /** The reconnect timer. IOConnect waits a second before trying to reconnect */
-  final private Timer backgroundTimer = new Timer("backgroundTimer");
+  // removed final for re-initilizing often
+  private Timer backgroundTimer = new Timer("backgroundTimer");
 
   /** A String representation of {@link #url}. */
   private String urlStr;
@@ -145,7 +146,8 @@ class EngineIO implements IOCallback {
      */
     @Override
     public void run() {
-      cleanup();
+      // This line has been commented for integrate last commit 6d559d221fa95103fd6ed25f3cdde6267023dcae
+      // cleanup();
       error(new SocketIOException(
           "Timeout Error. No heartbeat from server within life time of the socket. closing.",
           lastException));
@@ -400,13 +402,15 @@ class EngineIO implements IOCallback {
     sockets.clear();
     synchronized (connections) {
       List<EngineIO> con = connections.get(urlStr);
-      if (con.size() > 1)
+      // added 'con != null'
+      if ( con != null && con.size() > 1)
         con.remove(this);
       else
         connections.remove(urlStr);
     }
     logger.info("Cleanup");
     backgroundTimer.cancel();
+    backgroundTimer = new Timer("backgroundTimer");
   }
 
   /**
