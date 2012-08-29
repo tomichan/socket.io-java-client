@@ -1,6 +1,21 @@
 ### This is a simple porting of [socket.io-java-client](https://github.com/Gottox/socket.io-java-client).
 #### This project includes: `maven` repository configuration and `Google's json parser` instead of `org.json.JSONObject`
 
+```xml
+<!-- in the 'repositories' section -->
+<repository>
+  <id>keytwo.net</id>
+  <name>Keytwo.net Repository</name>
+  <url>http://audiobox.keytwo.net</url>
+</repository>
+
+<!-- in the 'dependencies' section -->
+<dependency>
+  <groupId>io.socket</groupId>
+  <artifactId>socket.io-client</artifactId>
+  <version>0.2.0</version> <!-- the desidered version -->
+</dependency>
+```
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=Gottox&url=https://github.com/Gottox/socket.io-java-client&title=socket.io-java-client&language=&tags=github&category=software)
 
