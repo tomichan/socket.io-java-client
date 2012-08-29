@@ -1,5 +1,4 @@
-### This is a simple porting of [socket.io-java-client](https://github.com/Gottox/socket.io-java-client).
-#### This project includes: `maven` repository configuration and `Google's json parser` instead of `org.json.JSONObject`
+### This is a simple porting of [socket.io-java-client](https://github.com/Gottox/socket.io-java-client) that allows us to use a `maven` repository and `Google's json parser` instead of `org.json.JSONObject`
 
 ```xml
 <!-- in the 'repositories' section -->
