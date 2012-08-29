@@ -10,7 +10,6 @@ package io.socket;
 
 import com.google.gson.JsonElement;
 
-
 /**
  * The Interface IOCallback. A callback interface to SocketIO
  */

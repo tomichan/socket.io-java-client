@@ -1,3 +1,7 @@
+## This is a simple porting of [socket.io-java-client](https://github.com/Gottox/socket.io-java-client).
+## This project includes: `maven` repository configuration and `Google's json parser` instead of `org.json.JSONObject`
+
+
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=Gottox&url=https://github.com/Gottox/socket.io-java-client&title=socket.io-java-client&language=&tags=github&category=software)
 
 # Socket.IO-Client for Java
@@ -63,7 +67,7 @@ Using socket.io-java-client is quite simple. But lets see:
 				System.out.println("Server triggered event '" + event + "'");
 			}
 		});
-		
+
 		// This line is cached until the connection is establisched.
 		socket.send("Hello Server!");
 
@@ -73,17 +77,17 @@ For further informations, read the [Javadoc](http://s01.de/~tox/hgexport/socket.
 
  * [Class SocketIO](http://s01.de/~tox/hgexport/socket.io-java-client/io/socket/SocketIO.html)
  * [Interface IOCallback](http://s01.de/~tox/hgexport/socket.io-java-client/io/socket/IOCallback.html)
- 
+
 ## Checkout
 
  * with git
- 
+
 		git clone git://github.com/Gottox/socket.io-java-client.git
 
  * with mercurial
- 
- 		hg clone https://bitbucket.org/Gottox/socket.io-java-client 
- 
+
+ 		hg clone https://bitbucket.org/Gottox/socket.io-java-client
+
 Both repositories are synchronized and up to date.
 
 ## Building
@@ -94,7 +98,7 @@ to build a jar-file:
 	ant jar
 	ls jar/socketio.jar
 
-You'll find the socket.io-jar in jar/socketio.jar 
+You'll find the socket.io-jar in jar/socketio.jar
 
 ## Bugs
 

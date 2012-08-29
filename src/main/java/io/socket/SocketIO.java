@@ -12,8 +12,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import com.google.gson.JsonObject;
+import javax.net.ssl.SSLSocketFactory;
 
+import com.google.gson.JsonObject;
 
 /**
  * The Class SocketIO.
@@ -24,7 +25,7 @@ public class SocketIO {
   private IOCallback callback;
 
   /** connection of this Socket. */
-  private EngineIO connection;
+  private IOConnection connection;
 
   /** namespace. */
   private String namespace;
@@ -121,7 +122,15 @@ public class SocketIO {
   public SocketIO(final URL url) {
     setAndConnect(url, null);
   }
-
+  
+  /**
+   * Set the socket factory used for SSL connections.
+   * @param socketFactory
+   */
+  public static void setDefaultSSLSocketFactory(SSLSocketFactory socketFactory) {
+    IOConnection.setDefaultSSLSocketFactory(socketFactory);
+  }
+  
   /**
    * connects to supplied host using callback. Do only use this method if you
    * instantiate {@link SocketIO} using {@link #SocketIO()}.
@@ -191,7 +200,6 @@ public class SocketIO {
   private boolean setAndConnect(URL url, IOCallback callback) {
     if(this.connection != null)
       throw new RuntimeException("You can connect your SocketIO instance only once. Use a fresh instance instead.");
-
     if ((this.url != null && url != null)
         || (this.callback != null && callback != null))
       return false;
@@ -208,7 +216,7 @@ public class SocketIO {
       if (this.namespace.equals("/")) {
         this.namespace = "";
       }
-      this.connection = EngineIO.register(origin, this);
+      this.connection = IOConnection.register(origin, this);
       return true;
     }
     return false;
@@ -333,7 +341,7 @@ public class SocketIO {
   public boolean isConnected() {
     return this.connection.isConnected();
   }
-
+  
   /**
    * Returns the name of the used transport
    * 
