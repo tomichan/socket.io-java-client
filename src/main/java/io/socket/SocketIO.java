@@ -12,7 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLContext;
 
 import com.google.gson.JsonObject;
 
@@ -127,8 +127,8 @@ public class SocketIO {
    * Set the socket factory used for SSL connections.
    * @param socketFactory
    */
-  public static void setDefaultSSLSocketFactory(SSLSocketFactory socketFactory) {
-    IOConnection.setDefaultSSLSocketFactory(socketFactory);
+  public static void setDefaultSSLSocketFactory(SSLContext sslContext) {
+    IOConnection.setSslContext(sslContext);
   }
   
   /**
@@ -339,7 +339,7 @@ public class SocketIO {
    *         not connected or currently connecting
    */
   public boolean isConnected() {
-    return this.connection.isConnected();
+    return this.connection != null && this.connection.isConnected();
   }
   
   /**

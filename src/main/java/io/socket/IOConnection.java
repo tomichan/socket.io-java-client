@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLContext;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -70,8 +70,7 @@ class IOConnection implements IOCallback {
   public static final String SOCKET_IO_1 = "/socket.io/1/";
 
   /** The SSL socket factory for HTTPS connections */
-  private static SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory
-      .getDefault();
+  private static SSLContext sslContext = null;
 
   /** All available connections. */
   private static HashMap<String, List<IOConnection>> connections = new HashMap<String, List<IOConnection>>();
@@ -209,10 +208,19 @@ class IOConnection implements IOCallback {
   /**
    * Set the socket factory used for SSL connections.
    * 
-   * @param socketFactory
+   * @param sslContext
    */
-  public static void setDefaultSSLSocketFactory(SSLSocketFactory socketFactory) {
-    sslSocketFactory = socketFactory;
+  public static void setSslContext(SSLContext sslContext) {
+    IOConnection.sslContext = sslContext;
+  }
+  
+  /**
+   * Get the socket factory used for SSL connections.
+   * 
+   * @return socketFactory
+   */
+  public static SSLContext getSslContext() {
+    return sslContext;
   }
 
   /**
@@ -294,7 +302,7 @@ class IOConnection implements IOCallback {
       connection = url.openConnection();
       if (connection instanceof HttpsURLConnection) {
         ((HttpsURLConnection) connection)
-            .setSSLSocketFactory(sslSocketFactory);
+            .setSSLSocketFactory(sslContext.getSocketFactory());
       }
       connection.setConnectTimeout(connectTimeout);
       connection.setReadTimeout(connectTimeout);
@@ -355,17 +363,20 @@ class IOConnection implements IOCallback {
     final String id = _id;
     final String endPoint = message.getEndpoint();
     return new IOAcknowledge() {
+      @Override
       public void ack(JsonElement... args) {
         JsonArray array = new JsonArray();
         for (JsonElement o : args) {
           try {
             array.add(o);
-            // array.put(o == null ? JSONObject.NULL : o);
           } catch (Exception e) {
-            error(new SocketIOException( "You can only put values in IOAcknowledge.ack() which can be handled by JSONArray.put()", e));
+            error(new SocketIOException(
+                "You can only put values in IOAcknowledge.ack() which can be handled by JSONArray.put()",
+                e));
           }
         }
-        IOMessage ackMsg = new IOMessage(IOMessage.TYPE_ACK, endPoint, id + array.toString());
+        IOMessage ackMsg = new IOMessage(IOMessage.TYPE_ACK, endPoint,
+            id + array.toString());
         sendPlain(ackMsg.toString());
       }
     };
@@ -686,7 +697,8 @@ class IOConnection implements IOCallback {
           argsArray = new JsonElement[0];
         String eventName = event.get("name").getAsString();
         try {
-          findCallback(message).on(eventName, remoteAcknowledge(message), argsArray);
+          findCallback(message).on(eventName,
+              remoteAcknowledge(message), argsArray);
         } catch (Exception e) {
           error(new SocketIOException(
               "Exception was thrown in on(String, JSONObject[]).\n"
@@ -724,7 +736,8 @@ class IOConnection implements IOCallback {
       break;
     case IOMessage.TYPE_ERROR:
       try {
-        findCallback(message).onError( new SocketIOException(message.getData()));
+        findCallback(message).onError(
+            new SocketIOException(message.getData()));
       } catch (SocketIOException e) {
         error(e);
       }
@@ -824,6 +837,7 @@ class IOConnection implements IOCallback {
         }
       }
       
+      
       JsonObject jobj = new JsonObject();
       jobj.add("name", new JsonPrimitive(event));
       jobj.add("args", jarray);
@@ -833,7 +847,7 @@ class IOConnection implements IOCallback {
       sendPlain(message.toString());
       
     } catch (JsonParseException e) {
-      error(new SocketIOException("Error while emitting an event. Make sure you only try to send arguments, which can be serialized into JSON.") );
+      error(new SocketIOException("Error while emitting an event. Make sure you only try to send arguments, which can be serialized into JSON."));
     }
 
   }
