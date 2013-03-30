@@ -14,6 +14,7 @@ import static org.junit.Assert.fail;
 import io.socket.testutils.MutateProxy;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -40,7 +41,10 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 	private static final String REQUEST_ACKNOWLEDGE = "requestAcknowledge";
 
 	/** The Constant to the node executable */
-	private final static String NODE = "/usr/local/bin/node";
+	private final static String NODE = "node";
+	private final static String NPM = "npm";
+
+	private final static File RESOURCES_DIR = new File("./src/test/resources");
 
 	/** The port of this test, randomly choosed */
 	private int port = -1;
@@ -98,10 +102,15 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 		events = new LinkedBlockingQueue<String>();
 		outputs = new LinkedBlockingQueue<String>();
 		args = new LinkedBlockingQueue<Object>();
+
+		System.out.println("Installing socket.io ...");
+		Runtime.getRuntime().exec(new String[] { NPM, "install" },
+				null, RESOURCES_DIR).waitFor();
+
 		System.out.println("Connect with " + transport);
 		node = Runtime.getRuntime().exec(
-				new String[] { NODE, "./tests/io/socket/testutils/socketio.js",
-						"" + getPort(), transport });
+				new String[] { NODE, "socketio.js", "" + getPort(), transport },
+				null, RESOURCES_DIR);
 		proxy = new MutateProxy(getPort() + 1, getPort());
 		proxy.start();
 
