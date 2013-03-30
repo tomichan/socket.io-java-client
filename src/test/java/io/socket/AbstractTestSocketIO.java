@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -79,6 +80,21 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 	static protected String transport = null;
 
 	/**
+	 * Set up before class.
+	 * 
+	 * @throws Exception
+	 *             the exception
+	 *
+	 * TODO: Install dependencies before all the tests run
+	 */
+	@BeforeClass
+	public static void npmInstall() throws Exception {
+		System.out.println("Installing socket.io ...");
+		Runtime.getRuntime().exec(new String[] { NPM, "install" },
+				null, RESOURCES_DIR).waitFor();
+	}
+
+	/**
 	 * Tear down after class.
 	 * 
 	 * @throws Exception
@@ -102,10 +118,6 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 		events = new LinkedBlockingQueue<String>();
 		outputs = new LinkedBlockingQueue<String>();
 		args = new LinkedBlockingQueue<Object>();
-
-		System.out.println("Installing socket.io ...");
-		Runtime.getRuntime().exec(new String[] { NPM, "install" },
-				null, RESOURCES_DIR).waitFor();
 
 		System.out.println("Connect with " + transport);
 		node = Runtime.getRuntime().exec(
@@ -263,7 +275,7 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 		String str = "TESTSTRING";
 		socket.emit("echo", str);
 		assertEquals("Test String", "on", takeEvent());
-		assertEquals(str, takeArg());
+		assertEquals(str, ((JsonElement)takeArg()).getAsString());
 
 		JsonObject obj = new JsonParser().parse("{'foo':'bar'}").getAsJsonObject();
 		socket.emit("echo", obj);
@@ -370,11 +382,11 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 			}
 		}, "TESTSTRING");
 		assertEquals("ack", takeEvent());
-		assertEquals("TESTSTRING", takeArg());
+		assertEquals("TESTSTRING", ((JsonElement)takeArg()).getAsString());
 
 		socket.emit(REQUEST_ACKNOWLEDGE, "TESTSTRING");
 		assertEquals("on", takeEvent());
-		assertEquals("TESTSTRING", takeArg());
+		assertEquals("TESTSTRING", ((JsonElement)takeArg()).getAsString());
 		assertEquals("ACKNOWLEDGE:TESTSTRING", takeLine());
 		doClose();
 	}
@@ -393,9 +405,12 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 	@Test(timeout = TIMEOUT)
 	public void sendUtf8() throws Exception {
 		doConnect();
-		socket.emit("fooo", "\uD83C\uDF84");
-		socket.emit("fooo", "🎄");
-		assertEquals("on", takeEvent());
+		String[] strings = new String[] {"\uD83C\uDF84", "🎄"};
+		for (String str : strings) {
+			socket.emit("echo", str);
+			assertEquals("on", takeEvent());
+			assertEquals(str, ((JsonElement)takeArg()).getAsString());
+		}
 		doClose();
 	}
 	

@@ -826,26 +826,26 @@ class IOConnection implements IOCallback {
    */
   public void emit(SocketIO socket, String event, IOAcknowledge ack, Object... args) {
     try {
-      
       JsonArray jarray = new JsonArray();
-      
-      for ( Object arg : args ) {
-        if ( arg instanceof String ) {
-          jarray.add( new JsonParser().parse( (String) arg ).getAsJsonObject() );
+
+      for (Object arg : args) {
+        if (arg instanceof JsonElement) {
+          jarray.add((JsonElement)arg);
+        } else if (arg instanceof String) {
+          jarray.add(new JsonParser().parse((String)arg));
         } else {
-          error( new SocketIOException("a non-string message received: " + arg.toString() ) );
+          error(new SocketIOException("a non-json message received: " + arg.toString()));
         }
       }
-      
-      
+
       JsonObject jobj = new JsonObject();
       jobj.add("name", new JsonPrimitive(event));
       jobj.add("args", jarray);
-      
+
       IOMessage message = new IOMessage(IOMessage.TYPE_EVENT, socket.getNamespace(), jobj.toString());
       synthesizeAck(message, ack);
       sendPlain(message.toString());
-      
+
     } catch (JsonParseException e) {
       error(new SocketIOException("Error while emitting an event. Make sure you only try to send arguments, which can be serialized into JSON."));
     }
