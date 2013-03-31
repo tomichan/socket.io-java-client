@@ -414,6 +414,18 @@ public abstract class AbstractTestSocketIO implements IOCallback {
 		doClose();
 	}
 	
+	@Test(timeout = TIMEOUT)
+	public void bufferMessages() throws Exception {
+		socket = new SocketIO("http://127.0.0.1:" + getProxyPort() + "/main", this);
+		String str = "TESTSTRING";
+		// sends before the connection is established
+		socket.emit("echo", str);
+		assertEquals("onConnect", takeEvent());
+		assertEquals("on", takeEvent());
+		assertEquals(str, ((JsonElement)takeArg()).getAsString());
+		doClose();
+	}
+
 	// END TESTS
 
 	/**
