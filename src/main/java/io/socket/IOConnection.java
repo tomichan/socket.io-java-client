@@ -213,7 +213,7 @@ class IOConnection implements IOCallback {
   public static void setSslContext(SSLContext sslContext) {
     IOConnection.sslContext = sslContext;
   }
-  
+
   /**
    * Get the socket factory used for SSL connections.
    * 
@@ -487,7 +487,7 @@ class IOConnection implements IOCallback {
     if (heartbeatTimeoutTask != null) {
       heartbeatTimeoutTask.cancel();
     }
-    if(getState() != STATE_INVALID) {
+    if (getState() != STATE_INVALID) {
       heartbeatTimeoutTask = new HearbeatTimeoutTask();
       backgroundTimer.schedule(heartbeatTimeoutTask, closingTimeout
           + heartbeatTimeout);
@@ -885,7 +885,8 @@ class IOConnection implements IOCallback {
    *            the new state
    */
   private synchronized void setState(int state) {
-    this.state = state;
+    if (getState() != STATE_INVALID)
+      this.state = state;
   }
 
   /**
