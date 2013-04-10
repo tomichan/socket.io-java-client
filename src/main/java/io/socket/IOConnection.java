@@ -112,7 +112,7 @@ class IOConnection implements IOCallback {
   private SocketIO firstSocket = null;
 
   /** The reconnect timer. IOConnect waits a second before trying to reconnect */
-  final private Timer backgroundTimer = new Timer("backgroundTimer");
+  private Timer backgroundTimer = new Timer("backgroundTimer");
 
   /** A String representation of {@link #url}. */
   private String urlStr;
@@ -436,6 +436,7 @@ class IOConnection implements IOCallback {
     }
     logger.info("Cleanup");
     backgroundTimer.cancel();
+    backgroundTimer = new Timer("backgroundTimer");
   }
 
   /**
@@ -877,7 +878,9 @@ class IOConnection implements IOCallback {
    *            the new state
    */
   private synchronized void setState(int state) {
-    this.state = state;
+    if (getState() != STATE_INVALID) {
+      this.state = state;
+    }
   }
 
   /**
