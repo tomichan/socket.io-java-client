@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/[YOUR_GITHUB_USERNAME]/[YOUR_PROJECT_NAME].png)](https://travis-ci.org/[YOUR_GITHUB_USERNAME]/[YOUR_PROJECT_NAME])
+
 ##### This is a simple porting of [socket.io-java-client](https://github.com/Gottox/socket.io-java-client) that allows us to use a `maven` repository and `Google's json parser` instead of `org.json.JSONObject`
 
 ###### In your `pom.xml`
