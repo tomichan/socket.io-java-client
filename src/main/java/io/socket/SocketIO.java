@@ -34,6 +34,8 @@ public class SocketIO {
   private Properties headers = new Properties();
 
   private URL url;
+  
+  private String queryString;
 
   /**
    * Instantiates a new socket.io connection. The object connects after
@@ -210,8 +212,7 @@ public class SocketIO {
       this.callback = callback;
     }
     if (this.callback != null && this.url != null) {
-      final String origin = this.url.getProtocol() + "://"
-          + this.url.getAuthority();
+      final String origin = this.url.getProtocol() + "://" + this.url.getAuthority();
       this.namespace = this.url.getPath();
       if (this.namespace.equals("/")) {
         this.namespace = "";
@@ -362,6 +363,14 @@ public class SocketIO {
    */
   public Properties getHeaders() {
     return headers;
+  }
+  
+  public String getQueryString() {
+    return this.queryString;
+  }
+  
+  public void setQueryString(String query) {
+    this.queryString = query;
   }
 
   /**

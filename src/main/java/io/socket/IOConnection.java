@@ -104,6 +104,8 @@ class IOConnection implements IOCallback {
 
   /** Custom Request headers used while handshaking */
   private Properties headers;
+  
+  private String queryString;
 
   /**
    * The first socket to be connected. the socket.io server does not send a
@@ -151,9 +153,7 @@ class IOConnection implements IOCallback {
      */
     @Override
     public void run() {
-      error(new SocketIOException(
-          "Timeout Error. No heartbeat from server within life time of the socket. closing.",
-          lastException));
+      error(new SocketIOException( "Timeout Error. No heartbeat from server within life time of the socket. closing.", lastException));
     }
   }
 
@@ -298,19 +298,23 @@ class IOConnection implements IOCallback {
     URLConnection connection;
     try {
       setState(STATE_HANDSHAKE);
-      url = new URL(IOConnection.this.url.toString() + SOCKET_IO_1);
+      
+      String connectionUrl = IOConnection.this.url.toString() + SOCKET_IO_1;
+      if ( this.queryString != null ) {
+        connectionUrl += "?" + this.queryString;
+      }
+      
+      url = new URL( connectionUrl );
       connection = url.openConnection();
       if (connection instanceof HttpsURLConnection) {
-        ((HttpsURLConnection) connection)
-            .setSSLSocketFactory(sslContext.getSocketFactory());
+        ((HttpsURLConnection) connection).setSSLSocketFactory(sslContext.getSocketFactory());
       }
       connection.setConnectTimeout(connectTimeout);
       connection.setReadTimeout(connectTimeout);
 
       /* Setting the request headers */
       for (Entry<Object, Object> entry : headers.entrySet()) {
-        connection.setRequestProperty((String) entry.getKey(),
-            (String) entry.getValue());
+        connection.setRequestProperty( (String) entry.getKey(), (String) entry.getValue() );
       }
 
       InputStream stream = connection.getInputStream();
@@ -338,8 +342,7 @@ class IOConnection implements IOCallback {
     else if (protocols.contains(XhrTransport.TRANSPORT_NAME))
       transport = XhrTransport.create(url, this);
     else {
-      error(new SocketIOException(
-          "Server supports no available transports. You should reconfigure the server to support a available transport"));
+      error(new SocketIOException( "Server supports no available transports. You should reconfigure the server to support a available transport") );
       return;
     }
     transport.connect();
@@ -370,13 +373,10 @@ class IOConnection implements IOCallback {
           try {
             array.add(o);
           } catch (Exception e) {
-            error(new SocketIOException(
-                "You can only put values in IOAcknowledge.ack() which can be handled by JSONArray.put()",
-                e));
+            error(new SocketIOException("You can only put values in IOAcknowledge.ack() which can be handled by JSONArray.put()", e));
           }
         }
-        IOMessage ackMsg = new IOMessage(IOMessage.TYPE_ACK, endPoint,
-            id + array.toString());
+        IOMessage ackMsg = new IOMessage(IOMessage.TYPE_ACK, endPoint, id + array.toString());
         sendPlain(ackMsg.toString());
       }
     };
@@ -410,6 +410,7 @@ class IOConnection implements IOCallback {
     try {
       this.url = new URL(url);
       this.urlStr = url;
+      this.queryString = socket.getQueryString();
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
@@ -570,7 +571,7 @@ class IOConnection implements IOCallback {
         .listIterator(1);
     while (fragments.hasNext()) {
       int length = Integer.parseInt(fragments.next());
-      String string = (String) fragments.next();
+      String string = fragments.next();
       // Potential BUG: it is not defined if length is in bytes or
       // characters. Assuming characters.
 
