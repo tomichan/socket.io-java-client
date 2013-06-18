@@ -80,7 +80,7 @@
       <!-- Enabling the use of SSH -->
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-ssh</artifactId>
+        <artifactId>wagon-ssh-external</artifactId>
         <version>2.4</version>
       </extension>
     </extensions>
@@ -112,7 +112,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.0</version>
+        <version>2.4.1</version>
       </plugin>
       
       
