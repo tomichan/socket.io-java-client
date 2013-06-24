@@ -15,7 +15,7 @@
 <dependency>
   <groupId>io.socket</groupId>
   <artifactId>socket.io-client</artifactId>
-  <version>0.2.0</version> <!-- the desidered version -->
+  <version>0.2.1</version> <!-- the desidered version -->
 </dependency>
 ```
 
