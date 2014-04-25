@@ -24,6 +24,12 @@ class WebsocketTransport extends WebSocketClient implements IOTransport {
     return new WebsocketTransport(uri, connection);
   }
 
+  public static IOTransport create(URL url, IOConnection connection, java.lang.String queryParameter) {
+    URI uri = URI.create( PATTERN_HTTP.matcher(url.toString()).replaceFirst("ws") + IOConnection.SOCKET_IO_1 + TRANSPORT_NAME + "/" + connection.getSessionId() + "?" + queryParameter);
+
+    return new WebsocketTransport(uri, connection);
+  }
+
   public WebsocketTransport(URI uri, IOConnection connection) {
     super(uri);
     this.connection = connection;
